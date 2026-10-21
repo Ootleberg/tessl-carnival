@@ -27,6 +27,8 @@ Run `npm run check` before you finish any change. CI runs the same command.
 
 ```txt
 index.html                the midway page
+WORKSHOP.md               the workshop, module by module
+tessl-factory/skills/     sample skills for maintenance loops
 src/
   main.ts                 the router (#/play/<game-id>) and the midway's overlay
   midway/                 the walkable midway map
@@ -88,6 +90,9 @@ in `src/games/index.ts`.
 You often work on an issue with nobody around to answer questions.
 
 - **Read the issue's "Done when"** and treat it as the checklist.
+- **Stay inside the issue.** If you notice something else wrong along the way,
+  such as a stale doc, a weak test or a colour that skips the theme, don't fix
+  it: mention it in the pull request so it can get its own issue.
 - **If something is unclear,** pick the simplest reading that keeps the house
   rules, and say which reading you picked in the pull request.
 - **Leave these alone** unless the issue asks for them: `.github/`, `tessl.json`,
@@ -102,3 +107,9 @@ You often work on an issue with nobody around to answer questions.
 ## Skills
 
 - `skills/add-carnival-game/SKILL.md`: how to add a new game to the midway.
+- `tessl-factory/skills/`: sample skills for scheduled maintenance loops
+  (rule mining, doc gardening, test health). Each one files issues and never
+  changes code.
+
+`WORKSHOP.md` walks people through the workshop this repo was built for, module
+by module.
