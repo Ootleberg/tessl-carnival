@@ -1,0 +1,117 @@
+/* Colours and fonts come from src/carnival/theme.ts via applyTheme(). */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-family);
+}
+
+a {
+  color: var(--color-accent);
+}
+
+.awning {
+  padding: 20px 16px 28px;
+  text-align: center;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-stripeA) 0 48px,
+    var(--color-stripeB) 48px 96px
+  );
+  clip-path: polygon(0 0, 100% 0, 100% 80%, 95% 100%, 90% 80%, 85% 100%, 80% 80%, 75% 100%, 70% 80%, 65% 100%, 60% 80%, 55% 100%, 50% 80%, 45% 100%, 40% 80%, 35% 100%, 30% 80%, 25% 100%, 20% 80%, 15% 100%, 10% 80%, 5% 100%, 0 80%);
+}
+
+.brand {
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: var(--radius);
+  background: var(--color-background);
+  color: var(--color-accent);
+  font-size: 28px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.midway h1 {
+  margin-bottom: 4px;
+}
+
+.lede {
+  margin-top: 0;
+  color: var(--color-muted);
+}
+
+.booths {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.booth {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.booth h2 {
+  margin: 0 0 8px;
+}
+
+.booth .description {
+  flex: 1;
+  margin: 0 0 12px;
+  color: var(--color-muted);
+}
+
+.booth .best {
+  margin: 0 0 16px;
+  font-weight: bold;
+}
+
+.play {
+  align-self: flex-start;
+  padding: 8px 20px;
+  border-radius: var(--radius);
+  background: var(--color-accent);
+  color: var(--color-background);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.game-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 24px;
+  margin-bottom: 16px;
+}
+
+.game-header h1 {
+  margin: 0;
+}
+
+.game canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  cursor: crosshair;
+  touch-action: none;
+}

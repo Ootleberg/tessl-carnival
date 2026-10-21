@@ -1,0 +1,68 @@
+# Tessl Carnival: agent guide
+
+A small browser carnival. The midway (`index.html`, `src/main.ts`) lists every
+game; each game is a booth in its own folder under `src/games/`.
+
+## Stack
+
+- TypeScript, Vite and plain HTML canvas. No UI framework.
+- Vitest for game logic. No browser tests: they need system packages the cloud
+  machine doesn't have.
+- Scores live in the browser (local storage) behind `src/carnival/scores.ts`.
+- No native dependencies, and nothing that needs `sudo`. `npm ci` is the whole setup.
+
+## Commands
+
+| Command         | What it does                         |
+| --------------- | ------------------------------------ |
+| `npm ci`        | Install dependencies                 |
+| `npm run dev`   | Run the carnival at localhost:5173   |
+| `npm run check` | Lint, type-check and test everything |
+| `npm run build` | Build the site into `dist/`          |
+
+Run `npm run check` before you finish any change. CI runs the same command.
+
+## Layout
+
+```txt
+index.html                the midway page
+src/
+  main.ts                 the midway and the router (#/play/<game-id>)
+  carnival/               shared base every game uses
+    registry.ts           the CarnivalGame shape and the registry
+    scores.ts             recordScore, bestScore, topScores
+    prizes.ts             prize tiers
+    theme.ts              colours, fonts and sizes
+  games/
+    index.ts              every game registers here
+    water-cannon/         the finished game, and the pattern to copy
+      game.ts
+      game.test.ts
+      README.md
+```
+
+## House rules
+
+1. **Every game registers on the midway.** A game lives in
+   `src/games/<game-id>/`, exports a `CarnivalGame` from `game.ts`, and is added
+   to the list in `src/games/index.ts`. The folder name and the game's `id` match.
+2. **Every game reports scores through the shared scores module.** Call
+   `recordScore(game.id, score)` from `src/carnival` once, when a round ends. No
+   game reads or writes local storage itself, or keeps its own high score table.
+3. **Every game draws with the carnival's theme.** Colours, fonts and sizes come
+   from `theme` and `canvasFont` in `src/carnival/theme.ts`. No hex colours or
+   font strings inside a game.
+4. **Game logic is testable without a browser.** Keep state changes (scoring,
+   moving, hits) in plain exported functions, and test them in `game.test.ts`.
+   Only `start` touches the canvas, the DOM or `requestAnimationFrame`.
+5. **`start` cleans up after itself.** It returns a function that cancels the
+   animation frame and removes every listener it added.
+6. **Each game has a README** that says how to play and how scoring works, and
+   stays true to the code.
+7. **One game per change.** A change to one game stays inside its folder, plus a
+   line in `src/games/index.ts` for a new game. Changes to `src/carnival/` are
+   their own change.
+
+## Skills
+
+- `skills/add-carnival-game/SKILL.md`: how to add a new game to the midway.
