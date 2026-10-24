@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  HOLE_RADIUS,
   POINTS_PER_WHACK,
   POP_SECONDS,
   ROUND_SECONDS,
@@ -40,7 +41,8 @@ describe('whack-a-mole', () => {
   it('scores a whack on a snake that is up and sends it back down', () => {
     const state = createState();
     const hole = state.holes[4];
-    hole.snakeTime = 1;
+    hole.upFor = 1;
+    hole.snakeTime = 1 - POP_SECONDS;
     expect(whack(state, hole.x, hole.y - 20)).toBe(true);
     expect(state.score).toBe(POINTS_PER_WHACK);
     expect(hole.snakeTime).toBe(0);
@@ -103,6 +105,21 @@ describe('whack-a-mole', () => {
     expect(snakeRise(hole)).toBeLessThan(1);
     step(state, POP_SECONDS);
     expect(snakeRise(hole)).toBe(0);
+  });
+
+  it('only scores a whack where the snake can be seen', () => {
+    const state = createState();
+    state.nextSnake = 100;
+    popUp(state, () => 0);
+    const hole = state.holes[0];
+    // Just popped up, still hidden in the hole.
+    expect(whack(state, hole.x, hole.y - 20)).toBe(false);
+    // Part way out: the top of the full-height hit zone is still empty.
+    step(state, POP_SECONDS / 4);
+    expect(whack(state, hole.x, hole.y - HOLE_RADIUS * 1.4)).toBe(false);
+    step(state, POP_SECONDS);
+    expect(whack(state, hole.x, hole.y - HOLE_RADIUS * 1.4)).toBe(true);
+    expect(state.score).toBe(POINTS_PER_WHACK);
   });
 
   it('keeps the last few seconds at a playable pace', () => {

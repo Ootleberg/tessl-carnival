@@ -110,13 +110,25 @@ export function snakeRise(hole: Hole): number {
   return 1 - (1 - eased) * (1 - eased);
 }
 
+/** How far below its fully raised spot a snake sits, in pixels. */
+function snakeSink(hole: Hole): number {
+  return (1 - snakeRise(hole)) * HOLE_RADIUS * 1.6;
+}
+
+/** Whether a point is on the part of a snake that is out of its hole. */
+function hitsSnake(hole: Hole, x: number, y: number): boolean {
+  if (snakeRise(hole) <= 0) return false;
+  // Nothing below the hole's front edge shows, so nothing there can be hit.
+  if (y > hole.y + HOLE_RADIUS * 0.4) return false;
+  // The snake sticks up out of its hole, so aim the hit zone a little above
+  // it, and lower it with the snake as it rises and sinks.
+  return Math.hypot(x - hole.x, y - (hole.y - HOLE_RADIUS / 2 + snakeSink(hole))) <= HOLE_RADIUS;
+}
+
 /** Whacks at a point on the canvas. Returns true if it hit a snake that was up. */
 export function whack(state: WhackAMoleState, x: number, y: number): boolean {
   if (state.phase !== 'playing') return false;
-  // The snake sticks up out of its hole, so aim the hit zone a little above it.
-  const hole = state.holes.find(
-    (h) => h.snakeTime > 0 && Math.hypot(x - h.x, y - (h.y - HOLE_RADIUS / 2)) <= HOLE_RADIUS,
-  );
+  const hole = state.holes.find((h) => hitsSnake(h, x, y));
   if (!hole) return false;
   hole.snakeTime = 0;
   state.score += POINTS_PER_WHACK;
@@ -150,8 +162,7 @@ export function step(state: WhackAMoleState, dt: number, random: () => number = 
 function drawSnake(ctx: CanvasRenderingContext2D, hole: Hole) {
   const { colors } = theme;
   // A snake that is part way out sits lower, with the rest hidden in the hole.
-  const sink = (1 - snakeRise(hole)) * HOLE_RADIUS * 1.6;
-  const headY = hole.y - HOLE_RADIUS * 0.9 + sink;
+  const headY = hole.y - HOLE_RADIUS * 0.9 + snakeSink(hole);
 
   ctx.save();
   ctx.beginPath();
