@@ -14,6 +14,7 @@ export const theme = {
     stripeB: '#fff8e7',
     water: '#5ec8f2',
     wood: '#8a5a3b',
+    green: '#4cbb5e',
   },
   font: {
     family: '"Trebuchet MS", "Segoe UI", system-ui, sans-serif',
