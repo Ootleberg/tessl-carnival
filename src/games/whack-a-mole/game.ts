@@ -12,15 +12,19 @@ const ROW_SPACING = 120;
 const COLUMN_SPACING = 220;
 
 /** How often a snake pops up, from the start of the round to the end. */
-export const SPAWN_INTERVAL = { start: 1.0, end: 0.35 } as const;
+export const SPAWN_INTERVAL = { start: 1.0, end: 0.55 } as const;
 /** How long a snake stays up, from the start of the round to the end. */
 export const UP_TIME = { start: 1.3, end: 0.6 } as const;
+/** Seconds a snake takes to pop out of its hole, and to drop back in. */
+export const POP_SECONDS = 0.15;
 
 export interface Hole {
   x: number;
   y: number;
   /** Seconds the snake in this hole stays up for; 0 when the hole is empty. */
   snakeTime: number;
+  /** Seconds the current snake was set to stay up for when it popped up. */
+  upFor: number;
 }
 
 export interface Whack {
@@ -46,6 +50,7 @@ export function createState(): WhackAMoleState {
     x: left + (i % COLUMNS) * COLUMN_SPACING,
     y: GRID_TOP + Math.floor(i / COLUMNS) * ROW_SPACING,
     snakeTime: 0,
+    upFor: 0,
   }));
   return {
     holes,
@@ -87,7 +92,22 @@ export function popUp(state: WhackAMoleState, random: () => number = Math.random
   if (empty.length === 0) return false;
   const hole = empty[Math.min(Math.floor(random() * empty.length), empty.length - 1)];
   hole.snakeTime = upTime(state.elapsed);
+  hole.upFor = hole.snakeTime;
   return true;
+}
+
+/**
+ * How far the snake in a hole is out, from 0 (down in the hole) to 1 (all the
+ * way up). It rises over POP_SECONDS when it pops up and sinks over
+ * POP_SECONDS before it drops back down.
+ */
+export function snakeRise(hole: Hole): number {
+  if (hole.snakeTime <= 0) return 0;
+  const sinceUp = hole.upFor - hole.snakeTime;
+  const t = Math.min(sinceUp / POP_SECONDS, hole.snakeTime / POP_SECONDS, 1);
+  const eased = Math.max(t, 0);
+  // Ease out, so the snake springs up and slows as it reaches the top.
+  return 1 - (1 - eased) * (1 - eased);
 }
 
 /** Whacks at a point on the canvas. Returns true if it hit a snake that was up. */
@@ -129,10 +149,18 @@ export function step(state: WhackAMoleState, dt: number, random: () => number = 
 
 function drawSnake(ctx: CanvasRenderingContext2D, hole: Hole) {
   const { colors } = theme;
-  const headY = hole.y - HOLE_RADIUS * 0.9;
+  // A snake that is part way out sits lower, with the rest hidden in the hole.
+  const sink = (1 - snakeRise(hole)) * HOLE_RADIUS * 1.6;
+  const headY = hole.y - HOLE_RADIUS * 0.9 + sink;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(hole.x - HOLE_RADIUS, 0, HOLE_RADIUS * 2, hole.y);
+  ctx.ellipse(hole.x, hole.y, HOLE_RADIUS, HOLE_RADIUS * 0.4, 0, 0, Math.PI);
+  ctx.clip();
 
   // Body, rising out of the hole.
-  ctx.fillStyle = colors.accent;
+  ctx.fillStyle = colors.green;
   ctx.fillRect(hole.x - 14, headY, 28, HOLE_RADIUS * 0.9);
   ctx.beginPath();
   ctx.arc(hole.x, headY, 22, 0, Math.PI * 2);
@@ -153,6 +181,7 @@ function drawSnake(ctx: CanvasRenderingContext2D, hole: Hole) {
   ctx.moveTo(hole.x, headY + 26);
   ctx.lineTo(hole.x + 5, headY + 32);
   ctx.stroke();
+  ctx.restore();
 }
 
 function draw(ctx: CanvasRenderingContext2D, state: WhackAMoleState) {

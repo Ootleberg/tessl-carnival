@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
   POINTS_PER_WHACK,
+  POP_SECONDS,
   ROUND_SECONDS,
   SPAWN_INTERVAL,
   UP_TIME,
   createState,
   popUp,
   secondsLeft,
+  snakeRise,
   spawnInterval,
   step,
   upTime,
@@ -84,5 +86,26 @@ describe('whack-a-mole', () => {
     state.holes[0].snakeTime = 1;
     expect(whack(state, state.holes[0].x, state.holes[0].y)).toBe(false);
     expect(state.score).toBe(0);
+  });
+
+  it('animates a snake popping out of its hole and dropping back in', () => {
+    const state = createState();
+    state.nextSnake = 100;
+    popUp(state, () => 0);
+    const hole = state.holes[0];
+    expect(snakeRise(hole)).toBe(0);
+    step(state, POP_SECONDS / 2);
+    expect(snakeRise(hole)).toBeGreaterThan(0);
+    expect(snakeRise(hole)).toBeLessThan(1);
+    step(state, POP_SECONDS);
+    expect(snakeRise(hole)).toBe(1);
+    step(state, hole.snakeTime - POP_SECONDS / 2);
+    expect(snakeRise(hole)).toBeLessThan(1);
+    step(state, POP_SECONDS);
+    expect(snakeRise(hole)).toBe(0);
+  });
+
+  it('keeps the last few seconds at a playable pace', () => {
+    expect(spawnInterval(ROUND_SECONDS - 3)).toBeGreaterThan(0.5);
   });
 });
