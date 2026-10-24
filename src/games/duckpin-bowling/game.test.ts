@@ -2,13 +2,17 @@ import { describe, expect, it } from 'vitest';
 import {
   AIM_LIMIT,
   AIM_SPEED,
+  BALL_RADIUS,
+  BALL_SPEED,
+  BALL_START_Y,
   BALLS_PER_FRAME,
   FRAMES,
   LANE_CENTER,
+  LANE_TOP,
+  PAUSE_SECONDS,
   PIN_COUNT,
   aimX,
   createState,
-  hits,
   pinsStanding,
   roll,
   step,
@@ -44,9 +48,9 @@ describe('duckpin bowling', () => {
     const state = createState();
     roll(state);
     finishBall(state);
-    const expected = createState().pins.filter((pin) => hits(pin, LANE_CENTER)).length;
-    expect(expected).toBeGreaterThan(0);
-    expect(expected).toBeLessThan(PIN_COUNT);
+    // A ball down the middle hits the head pin, both pins in the second row,
+    // the middle pin of the third and the two inner pins of the back row.
+    const expected = 6;
     expect(state.score).toBe(expected);
     expect(state.frameScores[0]).toBe(expected);
     expect(pinsStanding(state)).toBe(PIN_COUNT - expected);
@@ -64,6 +68,15 @@ describe('duckpin bowling', () => {
     roll(state);
     finishBall(state);
     expect(pinsStanding(state)).toBe(standing);
+  });
+
+  it('counts the time after the ball leaves the lane towards the pause', () => {
+    const state = createState();
+    roll(state);
+    // Long enough to roll off the lane and through the whole pause.
+    step(state, (BALL_START_Y - LANE_TOP + BALL_RADIUS) / BALL_SPEED + PAUSE_SECONDS + 0.01);
+    expect(state.phase).toBe('aiming');
+    expect(state.ball).toBe(1);
   });
 
   it('cannot roll a second ball while one is rolling', () => {

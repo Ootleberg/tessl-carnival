@@ -16,7 +16,7 @@ export const PAUSE_SECONDS = 0.8;
 
 export const LANE_CENTER = WIDTH / 2;
 export const LANE_HALF_WIDTH = 100;
-const LANE_TOP = 50;
+export const LANE_TOP = 50;
 const GUTTER = 20;
 const FOUL_LINE_Y = 410;
 export const BALL_START_Y = 440;
@@ -148,11 +148,13 @@ export function step(state: DuckpinState, dt: number): void {
         state.frameScores[state.frame] += 1;
       }
     }
-    if (ball.y < LANE_TOP - BALL_RADIUS) {
-      state.rolling = null;
-      state.pause = PAUSE_SECONDS;
-    }
-    return;
+    const laneEnd = LANE_TOP - BALL_RADIUS;
+    if (ball.y >= laneEnd) return;
+    // The ball left the lane partway through this step: the rest of it counts
+    // towards the pause.
+    dt = (laneEnd - ball.y) / BALL_SPEED;
+    state.rolling = null;
+    state.pause = PAUSE_SECONDS;
   }
 
   state.pause -= dt;

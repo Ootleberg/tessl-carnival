@@ -10,7 +10,8 @@ frame to knock them all down.
 - The ball knocks down every pin in its path. Pins that fall stay down for the
   rest of the frame.
 - Each frame has up to three balls. The frame ends early if you knock every pin
-  down, and the next frame starts with all ten pins standing again.
+  down. Each new frame starts with all ten pins standing again, and clearing
+  the pins in the last frame ends the game.
 - A game lasts 5 frames.
 - Click again on the game over screen to play another game.
 
